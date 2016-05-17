@@ -1,0 +1,15 @@
+Binaries
+DerivedDataCache
+Intermediate
+Saved
+SuperBallyBall.VC
+SuperBallyBall.VC.db
+*.db
+*.opendb
+*.opensdf
+*.sdf
+*.sln
+*.suo
+*.VC.db
+*.xcodeproj
+*.xcworkspace
