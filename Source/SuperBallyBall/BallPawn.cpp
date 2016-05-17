@@ -32,8 +32,9 @@ ABallPawn::ABallPawn()
 	// Use a spring arm to give the camera smooth, natural-feeling motion.
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraAttachmentArm"));
 	SpringArm->AttachTo(RootComponent);
-	SpringArm->RelativeRotation = FRotator(-45.f, 0.f, 0.f);
-	SpringArm->TargetArmLength = 400.0f;
+	SpringArm->RelativeRotation = FRotator(-30.0f, 0.0f, 0.0f);
+	SpringArm->SetAbsolute(false, true, false);
+	SpringArm->TargetArmLength = 500.0f;
 	SpringArm->bEnableCameraLag = true;
 	SpringArm->CameraLagSpeed = 3.0f;
 
@@ -59,6 +60,11 @@ void ABallPawn::BeginPlay()
 void ABallPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (GetActorLocation().Z < WorldPawn->GetActorLocation().Z - WorldPawn->SphereComponent->GetScaledSphereRadius())
+	{
+		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
+	}
 }
 
 // Called to bind functionality to input
