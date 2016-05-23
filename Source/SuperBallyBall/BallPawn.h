@@ -23,27 +23,36 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
+private:
+	/** Changes the roll of the reference LevelContainer's rotation relative to the world */
+	void ChangeRoll(float AxisValue);
+
+	/** Changes the pitch of the reference LevelContainer's rotation relative to the world */
+	void ChangePitch(float AxisValue);
+
+	/** Changes the yaw of the reference LevelContainer's rotation relative to the world */
+	void ChangeYaw(float AxisValue);
+
+	/** Called when the SphereComponent overlaps a pickup */
+	void CollectPickup();
+
+	/** The root component, which is represented by a sphere */
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* SphereComponent;
 
+	/** The static mesh which will serve as the visual representation of the pawn */
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* SphereVisual;
 
+	/** Container for the camera */
 	UPROPERTY(EditAnywhere)
 	class USpringArmComponent* SpringArm;
 
+	/** The camera which will look down on the ball from behind */
 	UPROPERTY(EditAnywhere)
 	class UCameraComponent* Camera;
 
+	/** Reference to the ALevelContainer whose rotation is controlled by the pawn */
 	UPROPERTY(EditAnywhere)
-	class AWorldPawn* WorldPawn;
-
-	UPROPERTY(EditAnywhere)
-	class UBallPawnMovementComponent* MovementComponent;
-
-	virtual UPawnMovementComponent* GetMovementComponent() const override;
-
-	void ChangeRoll(float AxisValue);
-	void ChangePitch(float AxisValue);
-	void ChangeYaw(float AxisValue);
+	class ALevelContainer* LevelContainer;
 };

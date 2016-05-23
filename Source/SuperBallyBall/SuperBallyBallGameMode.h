@@ -14,5 +14,6 @@ class SUPERBALLYBALL_API ASuperBallyBallGameMode : public AGameMode
 	GENERATED_BODY()
 	
 public:
+	// Sets default values for this game mode's properties
 	ASuperBallyBallGameMode();
 };

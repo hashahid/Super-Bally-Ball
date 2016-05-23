@@ -2,8 +2,8 @@
 
 #include "SuperBallyBall.h"
 #include "BallPawn.h"
-#include "WorldPawn.h"
-#include "BallPawnMovementComponent.h"
+#include "LevelContainer.h"
+#include "Pickup.h"
 
 // Sets default values
 ABallPawn::ABallPawn()
@@ -44,10 +44,6 @@ ABallPawn::ABallPawn()
 
 	// Take control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-
-	// Create an instance of the movement component, and tell it to update the root.
-	MovementComponent = CreateDefaultSubobject<UBallPawnMovementComponent>(TEXT("CustomMovementComponent"));
-	MovementComponent->UpdatedComponent = RootComponent;
 }
 
 // Called when the game starts or when spawned
@@ -61,7 +57,11 @@ void ABallPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (GetActorLocation().Z < WorldPawn->GetActorLocation().Z - WorldPawn->SphereComponent->GetScaledSphereRadius())
+	// Handle pickups the ball came into contact with
+	CollectPickup();
+
+	// Restart the level if the ball falls below it
+	if (LevelContainer && GetActorLocation().Z < LevelContainer->GetActorLocation().Z - LevelContainer->GetSphereComponent()->GetScaledSphereRadius())
 	{
 		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
 	}
@@ -77,31 +77,46 @@ void ABallPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	InputComponent->BindAxis("ChangeYaw", this, &ABallPawn::ChangeYaw);
 }
 
-UPawnMovementComponent* ABallPawn::GetMovementComponent() const
-{
-	return MovementComponent;
-}
-
 void ABallPawn::ChangeRoll(float AxisValue)
 {
-	FTransform Transform = WorldPawn->GetTransform();
-	Transform.ConcatenateRotation(FRotator(0.0f, 0.0f, AxisValue).Quaternion());
-	Transform.NormalizeRotation();
-	WorldPawn->SetActorTransform(Transform);
+	if (LevelContainer)
+	{
+		LevelContainer->AddActorWorldRotation(FRotator(0.0f, 0.0f, AxisValue).Quaternion());
+	}
 }
 
 void ABallPawn::ChangePitch(float AxisValue)
 {
-	FTransform Transform = WorldPawn->GetTransform();
-	Transform.ConcatenateRotation(FRotator(AxisValue, 0.0f, 0.0f).Quaternion());
-	Transform.NormalizeRotation();
-	WorldPawn->SetActorTransform(Transform);
+	if (LevelContainer)
+	{
+		LevelContainer->AddActorWorldRotation(FRotator(AxisValue, 0.0f, 0.0f).Quaternion());
+	}
 }
 
 void ABallPawn::ChangeYaw(float AxisValue)
 {
-	FTransform Transform = WorldPawn->GetTransform();
-	Transform.ConcatenateRotation(FRotator(0.0f, AxisValue, 0.0f).Quaternion());
-	Transform.NormalizeRotation();
-	WorldPawn->SetActorTransform(Transform);
+	if (LevelContainer)
+	{
+		LevelContainer->AddActorWorldRotation(FRotator(0.0f, AxisValue, 0.0f).Quaternion());
+	}
+}
+
+void ABallPawn::CollectPickup()
+{
+	// Get all overlapping Actors and store them in an array
+	TArray<AActor*> CollectedActors;
+	SphereComponent->GetOverlappingActors(CollectedActors);
+
+	for (int32 i = 0; i != CollectedActors.Num(); ++i)
+	{
+		// Cast the Actor to APickup
+		APickup* const CollectedPickup = Cast<APickup>(CollectedActors[i]);
+		// If the cast is successful and the pickup is valid and active 
+		if (CollectedPickup && !CollectedPickup->IsPendingKill() && CollectedPickup->IsActive())
+		{
+			// Call the pickup's WasCollected function and deactivate it
+			CollectedPickup->WasCollected();
+			CollectedPickup->SetActive(false);
+		}
+	}
 }
