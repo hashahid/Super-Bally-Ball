@@ -4,6 +4,7 @@
 #include "BallPawn.h"
 #include "LevelContainer.h"
 #include "Pickup.h"
+#include "Guard.h"
 
 // Sets default values
 ABallPawn::ABallPawn()
@@ -44,6 +45,9 @@ ABallPawn::ABallPawn()
 
 	// Take control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	// Set the factor used to knock back the pawn when overlapping a guard
+	KnockBackFactor = 2.0f;
 }
 
 // Called when the game starts or when spawned
@@ -58,7 +62,7 @@ void ABallPawn::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	// Handle pickups the ball came into contact with
-	CollectPickup();
+	HandleOverlappingActors();
 
 	// Restart the level if the ball falls below it
 	if (LevelContainer && GetActorLocation().Z < LevelContainer->GetActorLocation().Z - LevelContainer->GetSphereComponent()->GetScaledSphereRadius())
@@ -101,22 +105,33 @@ void ABallPawn::ChangeYaw(float AxisValue)
 	}
 }
 
-void ABallPawn::CollectPickup()
+void ABallPawn::HandleOverlappingActors()
 {
 	// Get all overlapping Actors and store them in an array
-	TArray<AActor*> CollectedActors;
-	SphereComponent->GetOverlappingActors(CollectedActors);
+	TArray<AActor*> OverlappedActors;
+	SphereComponent->GetOverlappingActors(OverlappedActors);
 
-	for (int32 i = 0; i != CollectedActors.Num(); ++i)
+	for (int32 i = 0; i != OverlappedActors.Num(); ++i)
 	{
 		// Cast the Actor to APickup
-		APickup* const CollectedPickup = Cast<APickup>(CollectedActors[i]);
+		APickup* const CollectedPickup = Cast<APickup>(OverlappedActors[i]);
 		// If the cast is successful and the pickup is valid and active 
 		if (CollectedPickup && !CollectedPickup->IsPendingKill() && CollectedPickup->IsActive())
 		{
 			// Call the pickup's WasCollected function and deactivate it
 			CollectedPickup->WasCollected();
 			CollectedPickup->SetActive(false);
+		}
+		else
+		{
+			// Cast the Actor to AGuard
+			AGuard* const CollidedGuard = Cast<AGuard>(OverlappedActors[i]);
+			// If the cast is successful 
+			if (CollidedGuard)
+			{
+				// Knock the BallPawn back
+				SphereVisual->SetPhysicsLinearVelocity(-KnockBackFactor * GetVelocity());
+			}
 		}
 	}
 }

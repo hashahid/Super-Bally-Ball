@@ -33,8 +33,8 @@ private:
 	/** Changes the yaw of the reference LevelContainer's rotation relative to the world */
 	void ChangeYaw(float AxisValue);
 
-	/** Called when the SphereComponent overlaps a pickup */
-	void CollectPickup();
+	/** Called when the SphereComponent overlaps an actor (either a pickup or guard) */
+	void HandleOverlappingActors();
 
 	/** The root component, which is represented by a sphere */
 	UPROPERTY(EditAnywhere)
@@ -55,4 +55,8 @@ private:
 	/** Reference to the ALevelContainer whose rotation is controlled by the pawn */
 	UPROPERTY(EditAnywhere)
 	class ALevelContainer* LevelContainer;
+
+	/** Magnitude of factor used to knock back the pawn when it collides with a guard */
+	UPROPERTY(EditAnywhere)
+	float KnockBackFactor;
 };

@@ -24,7 +24,7 @@ public:
 	void SetActive(bool NewPickupState);
 
 	/** Function to call when the pickup is collected */
-	virtual void WasCollected();
+	void WasCollected();
 
 private:
 	/** Static mesh to represent the pickup */
