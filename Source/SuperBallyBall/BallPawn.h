@@ -23,6 +23,14 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
+	virtual void PostInitializeComponents() override;
+
+	/** Return the level container */
+	FORCEINLINE class UStaticMeshComponent* GetSphereVisual() const { return SphereVisual; }
+
+	/** Return the level container */
+	FORCEINLINE class ALevelContainer* GetLevelContainer() const { return LevelContainer; }
+
 private:
 	/** Changes the roll of the reference LevelContainer's rotation relative to the world */
 	void ChangeRoll(float AxisValue);

@@ -17,7 +17,7 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Return the sphere component
+	/** Return the sphere component */
 	FORCEINLINE class USphereComponent* GetSphereComponent() const { return SphereComponent; }
 
 private:

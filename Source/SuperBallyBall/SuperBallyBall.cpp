@@ -4,9 +4,7 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, SuperBallyBall, "SuperBallyBall" );
 
-// TODO Guards
-// TODO Lives (extended with pickup collection) and timed levels
-// TODO Win and lose conditions
-// TODO Checkpoints (maybe extends general pickup class)
+// TODO Start menu HUD at start and after win/lose
+// TODO Win condition (get to finish line)
 // TODO High scores as fastest times
 // TODO Controller support

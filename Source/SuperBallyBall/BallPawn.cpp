@@ -37,7 +37,7 @@ ABallPawn::ABallPawn()
 	SpringArm->SetAbsolute(false, true, false);
 	SpringArm->TargetArmLength = 500.0f;
 	SpringArm->bEnableCameraLag = true;
-	SpringArm->CameraLagSpeed = 3.0f;
+	SpringArm->CameraLagSpeed = 10.0f;
 
 	// Create a camera and attach to the spring arm
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ActualCamera"));
@@ -47,7 +47,18 @@ ABallPawn::ABallPawn()
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 	// Set the factor used to knock back the pawn when overlapping a guard
-	KnockBackFactor = 2.0f;
+	KnockBackFactor = 4.0f;
+}
+
+void ABallPawn::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UMaterialInstanceDynamic* Material = SphereVisual->CreateDynamicMaterialInstance(0, SphereVisual->GetMaterial(0));
+	if (Material)
+	{
+		Material->SetVectorParameterValue(FName("Color"), FLinearColor::Red);
+	}
 }
 
 // Called when the game starts or when spawned
@@ -63,12 +74,6 @@ void ABallPawn::Tick(float DeltaTime)
 
 	// Handle pickups the ball came into contact with
 	HandleOverlappingActors();
-
-	// Restart the level if the ball falls below it
-	if (LevelContainer && GetActorLocation().Z < LevelContainer->GetActorLocation().Z - LevelContainer->GetSphereComponent()->GetScaledSphereRadius())
-	{
-		UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
-	}
 }
 
 // Called to bind functionality to input
