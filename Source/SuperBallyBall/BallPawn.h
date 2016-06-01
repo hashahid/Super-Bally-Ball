@@ -23,8 +23,6 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
-	virtual void PostInitializeComponents() override;
-
 	/** Return the level container */
 	FORCEINLINE class UStaticMeshComponent* GetSphereVisual() const { return SphereVisual; }
 
@@ -67,4 +65,7 @@ private:
 	/** Magnitude of factor used to knock back the pawn when it collides with a guard */
 	UPROPERTY(EditAnywhere)
 	float KnockBackFactor;
+
+	/** Used to SET ball's color on initial pickup overlap and AVERAGE it thereafter */
+	bool bPickupCollected;
 };

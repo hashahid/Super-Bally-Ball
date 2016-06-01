@@ -17,6 +17,11 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PostInitializeComponents() override;
+
+	/** Return the color of the pickup's mesh's material */
+	FORCEINLINE FLinearColor GetColor() const { return Color; }
+
 	/** Return whether or not the pickup is active */
 	FORCEINLINE bool IsActive() const { return bIsActive; }
 
@@ -30,6 +35,10 @@ private:
 	/** Static mesh to represent the pickup */
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* PickupVisual;
+
+	/** The color of the pickup's mesh's material. It transfers to the BallPawn on overlap */
+	UPROPERTY(EditAnywhere)
+	FLinearColor Color;
 
 	/** True when the pickup can be collected and false when it is deactivated */
 	bool bIsActive;

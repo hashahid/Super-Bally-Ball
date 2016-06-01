@@ -48,17 +48,9 @@ ABallPawn::ABallPawn()
 
 	// Set the factor used to knock back the pawn when overlapping a guard
 	KnockBackFactor = 4.0f;
-}
 
-void ABallPawn::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
-
-	UMaterialInstanceDynamic* Material = SphereVisual->CreateDynamicMaterialInstance(0, SphereVisual->GetMaterial(0));
-	if (Material)
-	{
-		Material->SetVectorParameterValue(FName("Color"), FLinearColor::Red);
-	}
+	// No pickups collected at the beginning (spawn time)
+	bPickupCollected = false;
 }
 
 // Called when the game starts or when spawned
@@ -123,6 +115,21 @@ void ABallPawn::HandleOverlappingActors()
 		// If the cast is successful and the pickup is valid and active 
 		if (CollectedPickup && !CollectedPickup->IsPendingKill() && CollectedPickup->IsActive())
 		{
+			// Transfer the pickup's color to the ball pawn
+			UMaterialInstanceDynamic* Material = SphereVisual->CreateDynamicMaterialInstance(0, SphereVisual->GetMaterial(0));
+			if (Material && !bPickupCollected)
+			{
+				Material->SetVectorParameterValue(FName("Color"), CollectedPickup->GetColor());
+				bPickupCollected = true;
+			}
+			else if (Material)
+			{
+				FLinearColor ExistingColor;
+				Material->GetVectorParameterValue(FName("Color"), ExistingColor);
+				FLinearColor AverageColor = (ExistingColor + CollectedPickup->GetColor()) / 2;
+				Material->SetVectorParameterValue(FName("Color"), AverageColor);
+			}
+
 			// Call the pickup's WasCollected function and deactivate it
 			CollectedPickup->WasCollected();
 			CollectedPickup->SetActive(false);

@@ -54,7 +54,7 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 				// Reset player position
 				BallPawn->TeleportTo(FVector(0.0f, 0.0f, LevelContainer->GetActorLocation().Z + 100.0f), FRotator(0.0f));
 				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector(0.0f));
-				BallPawn->GetSphereVisual()->SetAllPhysicsAngularVelocity(FVector(0.0f));
+				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector(0.0f));
 				LevelContainer->SetActorRotation(FRotator(0.0f).Quaternion());
 
 				// Penalize player maximum of 5 seconds for falling off the level

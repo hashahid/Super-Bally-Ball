@@ -23,6 +23,17 @@ APickup::APickup()
 	}
 }
 
+void APickup::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UMaterialInstanceDynamic* Material = PickupVisual->CreateDynamicMaterialInstance(0, PickupVisual->GetMaterial(0));
+	if (Material)
+	{
+		Material->SetVectorParameterValue(FName("Color"), Color);
+	}
+}
+
 // Called when the game starts or when spawned
 void APickup::BeginPlay()
 {
