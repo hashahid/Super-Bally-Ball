@@ -16,12 +16,12 @@ ABallPawn::ABallPawn()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
 	RootComponent = SphereComponent;
 	SphereComponent->InitSphereRadius(40.0f);
-	SphereComponent->SetCollisionProfileName(TEXT("Pawn"));
+	SphereComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	SphereComponent->SetSimulatePhysics(true);
 
 	// Create and position a mesh component so the ball can be seen
 	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualRepresentation"));
-	SphereVisual->AttachTo(RootComponent);
+	SphereVisual->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> SphereVisualAsset(TEXT("/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere"));
 	if (SphereVisualAsset.Succeeded())
 	{
@@ -32,7 +32,7 @@ ABallPawn::ABallPawn()
 
 	// Use a spring arm to give the camera smooth, natural-feeling motion.
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraAttachmentArm"));
-	SpringArm->AttachTo(RootComponent);
+	SpringArm->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	SpringArm->RelativeRotation = FRotator(-30.0f, 0.0f, 0.0f);
 	SpringArm->SetAbsolute(false, true, false);
 	SpringArm->TargetArmLength = 500.0f;
@@ -41,10 +41,13 @@ ABallPawn::ABallPawn()
 
 	// Create a camera and attach to the spring arm
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ActualCamera"));
-	Camera->AttachTo(SpringArm, USpringArmComponent::SocketName);
+	Camera->AttachToComponent(SpringArm, FAttachmentTransformRules::KeepRelativeTransform, USpringArmComponent::SocketName);
 
 	// Take control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	// Set the factor used to affect the LevelContainer's rotation amount from input
+	InputRotationFactor = 2.0f;
 
 	// Set the factor used to knock back the pawn when overlapping a guard
 	KnockBackFactor = 4.0f;
@@ -78,30 +81,35 @@ void ABallPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 	InputComponent->BindAxis("ChangeYaw", this, &ABallPawn::ChangeYaw);
 }
 
+// Change the roll of the LevelContainer's rotation relative to the world
 void ABallPawn::ChangeRoll(float AxisValue)
 {
 	if (LevelContainer)
 	{
-		LevelContainer->AddActorWorldRotation(FRotator(0.0f, 0.0f, AxisValue).Quaternion());
+		LevelContainer->AddActorWorldRotation(FRotator(0.0f, 0.0f, InputRotationFactor * AxisValue).Quaternion());
 	}
 }
 
+// Change the pitch of the LevelContainer's rotation relative to the world
 void ABallPawn::ChangePitch(float AxisValue)
 {
 	if (LevelContainer)
 	{
-		LevelContainer->AddActorWorldRotation(FRotator(AxisValue, 0.0f, 0.0f).Quaternion());
+		LevelContainer->AddActorWorldRotation(FRotator(InputRotationFactor * AxisValue, 0.0f, 0.0f).Quaternion());
 	}
 }
 
+// Change the yaw of the LevelContainer's rotation relative to the world
 void ABallPawn::ChangeYaw(float AxisValue)
 {
 	if (LevelContainer)
 	{
-		LevelContainer->AddActorWorldRotation(FRotator(0.0f, AxisValue, 0.0f).Quaternion());
+		// TODO: Change the camera's position instead of the LevelContainer's yaw
+		LevelContainer->AddActorWorldRotation(FRotator(0.0f, InputRotationFactor * AxisValue, 0.0f).Quaternion());
 	}
 }
 
+// Handle overlapping of the SphereComponent with pickups and guards
 void ABallPawn::HandleOverlappingActors()
 {
 	// Get all overlapping Actors and store them in an array

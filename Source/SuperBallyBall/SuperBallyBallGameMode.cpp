@@ -19,6 +19,7 @@ ASuperBallyBallGameMode::ASuperBallyBallGameMode()
 	bTickCaseExecuted = false;
 }
 
+// Called when the game starts
 void ASuperBallyBallGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -34,6 +35,7 @@ void ASuperBallyBallGameMode::BeginPlay()
 	}
 }
 
+// Called every frame
 void ASuperBallyBallGameMode::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -49,15 +51,13 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 			// If the ball falls below the level
 			if (LevelContainer && BallPawn->GetActorLocation().Z < LevelContainer->GetActorLocation().Z - LevelContainer->GetSphereComponent()->GetScaledSphereRadius() - 100.0f)
 			{
-				// UGameplayStatics::OpenLevel(this, FName(*GetWorld()->GetName()), false);
-
 				// Reset player position
 				BallPawn->TeleportTo(FVector(0.0f, 0.0f, LevelContainer->GetActorLocation().Z + 100.0f), FRotator(0.0f));
 				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector(0.0f));
 				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector(0.0f));
 				LevelContainer->SetActorRotation(FRotator(0.0f).Quaternion());
 
-				// Penalize player maximum of 5 seconds for falling off the level
+				// If statement protects against issue with time deducting twice
 				if (!bTickCaseExecuted)
 				{
 					TimeRemaining = TimeRemaining < 5.0f ? 0.0f : TimeRemaining - 5.0f;
@@ -78,26 +78,29 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 	}
 }
 
-void ASuperBallyBallGameMode::HandleNewState(EPlayState NewState)
+// Set a new playing state and handle the consequence
+void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 {
+	CurrentState = NewState;
 	ABallPawn* BallPawn = Cast<ABallPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+
 	switch (NewState)
 	{
 	case EPlayState::ELost:
+		TimeRemaining = 0.0f;
 		if (BallPawn)
 		{
 			BallPawn->DisableInput(nullptr);
 		}
 		break;
 	case EPlayState::EWon:
+		// TODO Save TimeRemaining for high score HUD
+		if (BallPawn)
+		{
+			BallPawn->DisableInput(nullptr);
+		}
 	case EPlayState::EPlaying:
 	default:
 		break;
 	}
-}
-
-void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
-{
-	CurrentState = NewState;
-	HandleNewState(CurrentState);
 }

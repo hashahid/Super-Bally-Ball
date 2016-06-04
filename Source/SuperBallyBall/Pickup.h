@@ -17,6 +17,7 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called after construction and before BeginPlay
 	virtual void PostInitializeComponents() override;
 
 	/** Return the color of the pickup's mesh's material */

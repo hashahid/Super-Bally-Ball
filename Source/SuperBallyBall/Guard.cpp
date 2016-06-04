@@ -20,6 +20,17 @@ AGuard::AGuard()
 	}
 }
 
+void AGuard::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	UMaterialInstanceDynamic* Material = GuardVisual->CreateDynamicMaterialInstance(0, GuardVisual->GetMaterial(0));
+	if (Material)
+	{
+		Material->SetVectorParameterValue(FName("Color"), FLinearColor::Red);
+	}
+}
+
 // Called when the game starts or when spawned
 void AGuard::BeginPlay()
 {

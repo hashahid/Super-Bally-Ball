@@ -17,6 +17,8 @@ public:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	virtual void PostInitializeComponents() override;
+
 private:
 	/** Static mesh to represent the pickup */
 	UPROPERTY(EditAnywhere)

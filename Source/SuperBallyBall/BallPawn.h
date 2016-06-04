@@ -30,16 +30,16 @@ public:
 	FORCEINLINE class ALevelContainer* GetLevelContainer() const { return LevelContainer; }
 
 private:
-	/** Changes the roll of the reference LevelContainer's rotation relative to the world */
+	/** Change the roll of the LevelContainer's rotation relative to the world */
 	void ChangeRoll(float AxisValue);
 
-	/** Changes the pitch of the reference LevelContainer's rotation relative to the world */
+	/** Change the pitch of the LevelContainer's rotation relative to the world */
 	void ChangePitch(float AxisValue);
 
-	/** Changes the yaw of the reference LevelContainer's rotation relative to the world */
+	/** Change the yaw of the LevelContainer's rotation relative to the world */
 	void ChangeYaw(float AxisValue);
 
-	/** Called when the SphereComponent overlaps an actor (either a pickup or guard) */
+	/** Handle overlapping of the SphereComponent with pickups and guards */
 	void HandleOverlappingActors();
 
 	/** The root component, which is represented by a sphere */
@@ -61,6 +61,10 @@ private:
 	/** Reference to the ALevelContainer whose rotation is controlled by the pawn */
 	UPROPERTY(EditAnywhere)
 	class ALevelContainer* LevelContainer;
+
+	/** The factor with which to multiply the AxisValue from input */
+	UPROPERTY(EditAnywhere)
+	float InputRotationFactor;
 
 	/** Magnitude of factor used to knock back the pawn when it collides with a guard */
 	UPROPERTY(EditAnywhere)

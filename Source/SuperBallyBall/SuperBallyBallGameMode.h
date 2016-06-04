@@ -5,6 +5,9 @@
 #include "GameFramework/GameMode.h"
 #include "SuperBallyBallGameMode.generated.h"
 
+/**
+ *
+ */
 UENUM(BlueprintType)
 enum class EPlayState
 {
@@ -54,12 +57,9 @@ private:
 	/** Keeps track of the game's current state */
 	EPlayState CurrentState;
 
-	/** Handle any function calls that change the game's play state */
-	void HandleNewState(EPlayState NewState);
-
-	/** Set a new playing state */
+	/** Set a new playing state and handle the consequence */
 	void SetCurrentState(EPlayState NewState);
 
 	/** Protect against issue where 5 seconds are taken off TimeRemaining twice when falling below level once */
-	float bTickCaseExecuted;
+	bool bTickCaseExecuted;
 };

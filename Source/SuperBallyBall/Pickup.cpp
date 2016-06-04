@@ -23,6 +23,7 @@ APickup::APickup()
 	}
 }
 
+// Called after construction and before BeginPlay
 void APickup::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
