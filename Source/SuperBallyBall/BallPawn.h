@@ -29,6 +29,9 @@ public:
 	/** Return the level container */
 	FORCEINLINE class ALevelContainer* GetLevelContainer() const { return LevelContainer; }
 
+	/** Return the color of this pawn's mesh's material */
+	FORCEINLINE FLinearColor GetColor() const { return Color; }
+
 private:
 	/** Change the roll of the LevelContainer's rotation relative to the world */
 	void ChangeRoll(float AxisValue);
@@ -69,6 +72,9 @@ private:
 	/** Magnitude of factor used to knock back the pawn when it collides with a guard */
 	UPROPERTY(EditAnywhere)
 	float KnockBackFactor;
+
+	/** The color of this pawn's mesh's material. Matching the goal's color while passing through it wins the game */
+	FLinearColor Color;
 
 	/** Used to SET ball's color on initial pickup overlap and AVERAGE it thereafter */
 	bool bPickupCollected;

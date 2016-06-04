@@ -28,7 +28,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* GoalVisual;
 
-	/** The color of the goal's mesh's material. Matching the BallPawn's color on overlap wins the game */
+	/** The color of the goal's mesh's material. Matching the BallPawn's color when it passes through wins the game */
 	UPROPERTY(EditAnywhere)
 	FLinearColor Color;
 };

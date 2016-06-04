@@ -61,5 +61,5 @@ private:
 	void SetCurrentState(EPlayState NewState);
 
 	/** Protect against issue where 5 seconds are taken off TimeRemaining twice when falling below level once */
-	bool bTickCaseExecuted;
+	bool bFellBelowLevel;
 };

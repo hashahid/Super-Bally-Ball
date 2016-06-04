@@ -4,6 +4,7 @@
 #include "SuperBallyBallGameMode.h"
 #include "BallPawn.h"
 #include "LevelContainer.h"
+#include "Goal.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 
@@ -16,7 +17,7 @@ ASuperBallyBallGameMode::ASuperBallyBallGameMode()
 	// Set the default number of seconds to complete the level 
 	TimeRemaining = 60.0f;
 
-	bTickCaseExecuted = false;
+	bFellBelowLevel = false;
 }
 
 // Called when the game starts
@@ -58,16 +59,34 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 				LevelContainer->SetActorRotation(FRotator(0.0f).Quaternion());
 
 				// If statement protects against issue with time deducting twice
-				if (!bTickCaseExecuted)
+				if (!bFellBelowLevel)
 				{
 					TimeRemaining = TimeRemaining < 5.0f ? 0.0f : TimeRemaining - 5.0f;
 				}
 
-				bTickCaseExecuted = true;
+				bFellBelowLevel = true;
 			}
 			else
 			{
-				bTickCaseExecuted = false;
+				bFellBelowLevel = false;
+
+				for (TActorIterator<AGoal> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+				{
+					AGoal* Goal = *ActorItr;
+					if (Goal)
+					{
+						// Win the game if the ball passes through the goal and its color matches the goal's
+						FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
+						float BZ = BallPawn->GetActorLocation().Z;
+						FVector2D GXY = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Y);
+						float GZ = Goal->GetActorLocation().Z;
+						float Epsilon = 2.5f;
+						if (FVector2D::Distance(BXY, GXY) <= 35.0f && BZ > GZ - Epsilon && BZ < GZ + Epsilon && BallPawn->GetColor() == Goal->GetColor())
+						{
+							SetCurrentState(EPlayState::EWon);
+						}
+					}
+				}
 			}
 		}
 

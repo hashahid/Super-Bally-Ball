@@ -4,6 +4,5 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, SuperBallyBall, "SuperBallyBall" );
 
-// TODO: Implement win condition (get through goal with proper color)
 // TODO: Display start menu HUD at game start and after win/lose
 // TODO: Implement controller support and MAYBE mobile support

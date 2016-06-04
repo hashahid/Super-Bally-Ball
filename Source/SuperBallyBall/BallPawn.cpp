@@ -127,15 +127,14 @@ void ABallPawn::HandleOverlappingActors()
 			UMaterialInstanceDynamic* Material = SphereVisual->CreateDynamicMaterialInstance(0, SphereVisual->GetMaterial(0));
 			if (Material && !bPickupCollected)
 			{
-				Material->SetVectorParameterValue(FName("Color"), CollectedPickup->GetColor());
+				Color = CollectedPickup->GetColor();
+				Material->SetVectorParameterValue(FName("Color"), Color);
 				bPickupCollected = true;
 			}
 			else if (Material)
 			{
-				FLinearColor ExistingColor;
-				Material->GetVectorParameterValue(FName("Color"), ExistingColor);
-				FLinearColor AverageColor = (ExistingColor + CollectedPickup->GetColor()) / 2;
-				Material->SetVectorParameterValue(FName("Color"), AverageColor);
+				Color = (Color + CollectedPickup->GetColor()) / 2;
+				Material->SetVectorParameterValue(FName("Color"), Color);
 			}
 
 			// Call the pickup's WasCollected function and deactivate it
