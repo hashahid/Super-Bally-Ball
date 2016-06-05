@@ -49,14 +49,15 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 		if (BallPawn)
 		{
 			ALevelContainer* LevelContainer = BallPawn->GetLevelContainer();
-			// If the ball falls below the level
-			if (LevelContainer && BallPawn->GetActorLocation().Z < LevelContainer->GetActorLocation().Z - LevelContainer->GetSphereComponent()->GetScaledSphereRadius() - 100.0f)
+
+			if (LevelContainer && IsBallOutsideLevelBounds(BallPawn, LevelContainer))
 			{
-				// Reset player position
-				BallPawn->TeleportTo(FVector(0.0f, 0.0f, LevelContainer->GetActorLocation().Z + 100.0f), FRotator(0.0f));
-				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector(0.0f));
-				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector(0.0f));
-				LevelContainer->SetActorRotation(FRotator(0.0f).Quaternion());
+				// Reset player, level, and camera positions
+				BallPawn->TeleportTo(FVector(0.0f, 0.0f, LevelContainer->GetActorLocation().Z + 100.0f), FRotator::ZeroRotator);
+				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector::ZeroVector);
+				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector::ZeroVector);
+				BallPawn->GetController()->SetControlRotation(FRotator::ZeroRotator);
+				LevelContainer->SetActorRotation(FRotator::ZeroRotator.Quaternion());
 
 				// If statement protects against issue with time deducting twice
 				if (!bFellBelowLevel)
@@ -73,18 +74,9 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 				for (TActorIterator<AGoal> ActorItr(GetWorld()); ActorItr; ++ActorItr)
 				{
 					AGoal* Goal = *ActorItr;
-					if (Goal)
+					if (Goal && HasBallPassedThroughGoal(BallPawn, Goal) && BallPawn->GetColor() == Goal->GetColor())
 					{
-						// Win the game if the ball passes through the goal and its color matches the goal's
-						FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
-						float BZ = BallPawn->GetActorLocation().Z;
-						FVector2D GXY = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Y);
-						float GZ = Goal->GetActorLocation().Z;
-						float Epsilon = 2.5f;
-						if (FVector2D::Distance(BXY, GXY) <= 35.0f && BZ > GZ - Epsilon && BZ < GZ + Epsilon && BallPawn->GetColor() == Goal->GetColor())
-						{
-							SetCurrentState(EPlayState::EWon);
-						}
+						SetCurrentState(EPlayState::EWon);
 					}
 				}
 			}
@@ -95,6 +87,33 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 			SetCurrentState(EPlayState::ELost);
 		}
 	}
+}
+
+// Checks if the ball has fallen below the level or thrown too far outside it
+bool ASuperBallyBallGameMode::IsBallOutsideLevelBounds(ABallPawn* BallPawn, ALevelContainer* LevelContainer)
+{
+	FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
+	float BZ = BallPawn->GetActorLocation().Z;
+
+	FVector2D LXY = FVector2D(LevelContainer->GetActorLocation().X, LevelContainer->GetActorLocation().Y);
+	float LZ = LevelContainer->GetActorLocation().Z;
+	float LR = LevelContainer->GetSphereComponent()->GetScaledSphereRadius();
+
+	return BZ < LZ - LR || FVector2D::Distance(BXY, LXY) > LR;
+}
+
+// Checks if the ball is inside the Goal's static mesh
+bool ASuperBallyBallGameMode::HasBallPassedThroughGoal(ABallPawn* BallPawn, AGoal* Goal)
+{
+	FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
+	float BZ = BallPawn->GetActorLocation().Z;
+
+	FVector2D GXY = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Y);
+	float GZ = Goal->GetActorLocation().Z;
+	
+	float E = 2.5f;
+
+	return FVector2D::Distance(BXY, GXY) <= 35.0f && BZ > GZ - E && BZ < GZ + E;
 }
 
 // Set a new playing state and handle the consequence

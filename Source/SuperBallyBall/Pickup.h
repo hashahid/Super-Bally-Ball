@@ -29,9 +29,6 @@ public:
 	/** Allow other classes to change activeness of pickup */
 	void SetActive(bool NewPickupState);
 
-	/** Function to call when the pickup is collected */
-	void WasCollected();
-
 private:
 	/** Static mesh to represent the pickup */
 	UPROPERTY(EditAnywhere)

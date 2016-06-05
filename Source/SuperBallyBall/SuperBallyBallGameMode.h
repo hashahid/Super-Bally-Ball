@@ -28,8 +28,10 @@ public:
 	// Sets default values for this game mode's properties
 	ASuperBallyBallGameMode();
 
+	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	/** Return the time remaining */
@@ -42,12 +44,22 @@ public:
 
 protected:
 	/** The widget class for the HUD screen */
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Meta = (BlueprintProtected = "true"))
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BlueprintProtected = "true"))
 	TSubclassOf<class UUserWidget> HUDWidgetClass;
 
 	/** The instance of the HUD */
 	UPROPERTY()
 	class UUserWidget* CurrentWidget;
+
+private:
+	/** Returns true if the ball has fallen below the level or thrown too far outside it, false otherwise */
+	bool IsBallOutsideLevelBounds(class ABallPawn* BallPawn, class ALevelContainer* LevelContainer);
+
+	/** Returns true if the ball is inside the Goal's static mesh, false otherwise */
+	bool HasBallPassedThroughGoal(class ABallPawn* BallPawn, class AGoal* Goal);
+
+	/** Set a new playing state and handle the consequence */
+	void SetCurrentState(EPlayState NewState);
 
 private:
 	/** The number of seconds the player has left to complete the level */
@@ -56,9 +68,6 @@ private:
 
 	/** Keeps track of the game's current state */
 	EPlayState CurrentState;
-
-	/** Set a new playing state and handle the consequence */
-	void SetCurrentState(EPlayState NewState);
 
 	/** Protect against issue where 5 seconds are taken off TimeRemaining twice when falling below level once */
 	bool bFellBelowLevel;

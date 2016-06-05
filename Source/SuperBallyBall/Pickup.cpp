@@ -46,9 +46,3 @@ void APickup::SetActive(bool NewPickupState)
 {
 	bIsActive = NewPickupState;
 }
-
-// Destroy the pickup after it is collected
-void APickup::WasCollected()
-{
-	Destroy();
-}

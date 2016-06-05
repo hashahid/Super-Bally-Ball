@@ -36,8 +36,7 @@ ABallPawn::ABallPawn()
 	SpringArm->RelativeRotation = FRotator(-30.0f, 0.0f, 0.0f);
 	SpringArm->SetAbsolute(false, true, false);
 	SpringArm->TargetArmLength = 500.0f;
-	SpringArm->bEnableCameraLag = true;
-	SpringArm->CameraLagSpeed = 10.0f;
+	SpringArm->bEnableCameraLag = false;
 
 	// Create a camera and attach to the spring arm
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("ActualCamera"));
@@ -78,34 +77,33 @@ void ABallPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 
 	InputComponent->BindAxis("ChangeRoll", this, &ABallPawn::ChangeRoll);
 	InputComponent->BindAxis("ChangePitch", this, &ABallPawn::ChangePitch);
-	InputComponent->BindAxis("ChangeYaw", this, &ABallPawn::ChangeYaw);
+	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
+	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 }
 
 // Change the roll of the LevelContainer's rotation relative to the world
 void ABallPawn::ChangeRoll(float AxisValue)
 {
-	if (LevelContainer)
+	if (LevelContainer && ABallPawn::Controller && AxisValue != 0.0f)
 	{
-		LevelContainer->AddActorWorldRotation(FRotator(0.0f, 0.0f, InputRotationFactor * AxisValue).Quaternion());
+		const FRotator Rotation = ABallPawn::Controller->GetControlRotation();
+		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
+
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		LevelContainer->AddActorWorldRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));		
 	}
 }
 
 // Change the pitch of the LevelContainer's rotation relative to the world
 void ABallPawn::ChangePitch(float AxisValue)
 {
-	if (LevelContainer)
+	if (LevelContainer && ABallPawn::Controller && AxisValue != 0.0f)
 	{
-		LevelContainer->AddActorWorldRotation(FRotator(InputRotationFactor * AxisValue, 0.0f, 0.0f).Quaternion());
-	}
-}
+		const FRotator Rotation = ABallPawn::Controller->GetControlRotation();
+		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 
-// Change the yaw of the LevelContainer's rotation relative to the world
-void ABallPawn::ChangeYaw(float AxisValue)
-{
-	if (LevelContainer)
-	{
-		// TODO: Change the camera's position instead of the LevelContainer's yaw
-		LevelContainer->AddActorWorldRotation(FRotator(0.0f, InputRotationFactor * AxisValue, 0.0f).Quaternion());
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		LevelContainer->AddActorWorldRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));
 	}
 }
 
@@ -137,8 +135,8 @@ void ABallPawn::HandleOverlappingActors()
 				Material->SetVectorParameterValue(FName("Color"), Color);
 			}
 
-			// Call the pickup's WasCollected function and deactivate it
-			CollectedPickup->WasCollected();
+			// Destroy and deactivate the pickup
+			CollectedPickup->Destroy();
 			CollectedPickup->SetActive(false);
 		}
 		else

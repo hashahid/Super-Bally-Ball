@@ -39,12 +39,10 @@ private:
 	/** Change the pitch of the LevelContainer's rotation relative to the world */
 	void ChangePitch(float AxisValue);
 
-	/** Change the yaw of the LevelContainer's rotation relative to the world */
-	void ChangeYaw(float AxisValue);
-
 	/** Handle overlapping of the SphereComponent with pickups and guards */
 	void HandleOverlappingActors();
 
+private:
 	/** The root component, which is represented by a sphere */
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* SphereComponent;
