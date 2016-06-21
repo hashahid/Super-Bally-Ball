@@ -32,6 +32,9 @@ public:
 	/** Return the color of this pawn's mesh's material */
 	FORCEINLINE FLinearColor GetColor() const { return Color; }
 
+	/** Update the LevelContainer's location without updating the locations of its child actors */
+	void UpdateLevelContainerLocation(FVector NewLocation);
+
 private:
 	/** Change the roll of the LevelContainer's rotation relative to the world */
 	void ChangeRoll(float AxisValue);

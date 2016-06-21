@@ -12,7 +12,21 @@ ALevelContainer::ALevelContainer()
 	// The root component is a sphere that contains the level
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
 	RootComponent = SphereComponent;
-	SphereComponent->InitSphereRadius(1000.0f);
+	SphereComponent->InitSphereRadius(2500.0f);
+}
+
+// Called after construction and before BeginPlay
+void ALevelContainer::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	TArray<USceneComponent*> ChildrenComponents;
+	RootComponent->GetChildrenComponents(false, ChildrenComponents);
+	for (USceneComponent* ChildComponent : ChildrenComponents)
+	{
+		ChildrenActors.Add(ChildComponent->GetOwner());
+		ChildrenActorLocations.Add(ChildComponent->GetOwner()->GetActorLocation());
+	}
 }
 
 // Called when the game starts or when spawned

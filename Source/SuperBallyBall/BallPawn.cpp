@@ -86,11 +86,13 @@ void ABallPawn::ChangeRoll(float AxisValue)
 {
 	if (LevelContainer && ABallPawn::Controller && AxisValue != 0.0f)
 	{
+		UpdateLevelContainerLocation(GetActorLocation());
+
 		const FRotator Rotation = ABallPawn::Controller->GetControlRotation();
 		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		LevelContainer->AddActorWorldRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));		
+		LevelContainer->AddActorLocalRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));		
 	}
 }
 
@@ -99,11 +101,29 @@ void ABallPawn::ChangePitch(float AxisValue)
 {
 	if (LevelContainer && ABallPawn::Controller && AxisValue != 0.0f)
 	{
+		UpdateLevelContainerLocation(GetActorLocation());
+
 		const FRotator Rotation = ABallPawn::Controller->GetControlRotation();
 		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		LevelContainer->AddActorWorldRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));
+		LevelContainer->AddActorLocalRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));
+	}
+}
+
+// Update the LevelContainer's location without updating the locations of its child actors
+void ABallPawn::UpdateLevelContainerLocation(FVector NewLocation)
+{
+	for (AActor* ChildActor : LevelContainer->GetChildrenActors())
+	{
+		ChildActor->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
+	}
+
+	LevelContainer->SetActorLocation(NewLocation);
+
+	for (AActor* ChildActor : LevelContainer->GetChildrenActors())
+	{
+		ChildActor->AttachToActor(LevelContainer, FAttachmentTransformRules::KeepWorldTransform);
 	}
 }
 
@@ -138,6 +158,7 @@ void ABallPawn::HandleOverlappingActors()
 			// Destroy and deactivate the pickup
 			CollectedPickup->Destroy();
 			CollectedPickup->SetActive(false);
+			// TODO: Find out if it's necessary to remove CollectedPickup from LevelContainer's ChildrenActors
 		}
 		else
 		{

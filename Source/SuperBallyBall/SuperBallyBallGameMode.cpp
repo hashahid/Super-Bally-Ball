@@ -53,11 +53,16 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 			if (LevelContainer && IsBallOutsideLevelBounds(BallPawn, LevelContainer))
 			{
 				// Reset player, level, and camera positions
+				BallPawn->UpdateLevelContainerLocation(FVector::ZeroVector);
+				LevelContainer->SetActorRotation(FRotator::ZeroRotator.Quaternion());
+				for (int32 i = 0; i != LevelContainer->GetChildrenActors().Num(); ++i)
+				{
+					LevelContainer->GetChildrenActors()[i]->SetActorLocation(LevelContainer->GetChildrenActorLocations()[i]);
+				}
 				BallPawn->TeleportTo(FVector(0.0f, 0.0f, LevelContainer->GetActorLocation().Z + 100.0f), FRotator::ZeroRotator);
 				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector::ZeroVector);
 				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector::ZeroVector);
 				BallPawn->GetController()->SetControlRotation(FRotator::ZeroRotator);
-				LevelContainer->SetActorRotation(FRotator::ZeroRotator.Quaternion());
 
 				// If statement protects against issue with time deducting twice
 				if (!bFellBelowLevel)
@@ -95,8 +100,8 @@ bool ASuperBallyBallGameMode::IsBallOutsideLevelBounds(ABallPawn* BallPawn, ALev
 	FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
 	float BZ = BallPawn->GetActorLocation().Z;
 
-	FVector2D LXY = FVector2D(LevelContainer->GetActorLocation().X, LevelContainer->GetActorLocation().Y);
-	float LZ = LevelContainer->GetActorLocation().Z;
+	FVector2D LXY = FVector2D::ZeroVector;
+	float LZ = 0.0f;
 	float LR = LevelContainer->GetSphereComponent()->GetScaledSphereRadius();
 
 	return BZ < LZ - LR || FVector2D::Distance(BXY, LXY) > LR;

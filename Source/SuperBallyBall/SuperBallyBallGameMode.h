@@ -70,5 +70,5 @@ private:
 	EPlayState CurrentState;
 
 	/** Protect against issue where 5 seconds are taken off TimeRemaining twice when falling below level once */
-	bool bFellBelowLevel;
+	bool bFellBelowLevel; // TODO: See if this can be removed after finishing Level 1
 };
