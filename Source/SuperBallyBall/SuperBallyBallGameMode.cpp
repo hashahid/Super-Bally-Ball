@@ -4,6 +4,7 @@
 #include "SuperBallyBallGameMode.h"
 #include "BallPawn.h"
 #include "LevelContainer.h"
+#include "CenterMarker.h"
 #include "Goal.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
@@ -16,14 +17,36 @@ ASuperBallyBallGameMode::ASuperBallyBallGameMode()
 
 	// Set the default number of seconds to complete the level 
 	TimeRemaining = 60.0f;
-
-	bFellBelowLevel = false;
 }
 
 // Called when the game starts
 void ASuperBallyBallGameMode::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Get a reference to the current level's BallPawn and LevelContainer
+	BallPawn = Cast<ABallPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
+
+	// Get a reference to the current level's center
+	for (TActorIterator<ACenterMarker> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		LevelCenter = *ActorItr;
+		if (LevelCenter)
+		{
+			break;
+		}
+	}
+
+	// Get a reference to the current level's goal
+	for (TActorIterator<AGoal> ActorItr(GetWorld()); ActorItr; ++ActorItr)
+	{
+		Goal = *ActorItr;
+		if (Goal)
+		{
+			break;
+		}
+	}
+
 	SetCurrentState(EPlayState::EPlaying);
 
 	if (HUDWidgetClass)
@@ -45,45 +68,28 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 	{
 		TimeRemaining -= DeltaTime;
 
-		ABallPawn* BallPawn = Cast<ABallPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
-		if (BallPawn)
+		if (BallPawn && LevelCenter)
 		{
 			ALevelContainer* LevelContainer = BallPawn->GetLevelContainer();
 
-			if (LevelContainer && IsBallOutsideLevelBounds(BallPawn, LevelContainer))
+			if (LevelContainer && IsBallOutsideLevelBounds(BallPawn, LevelCenter))
 			{
 				// Reset player, level, and camera positions
+				// TODO: See if this can be neatly refactored into a "Reset" function
 				BallPawn->UpdateLevelContainerLocation(FVector::ZeroVector);
-				LevelContainer->SetActorRotation(FRotator::ZeroRotator.Quaternion());
+				LevelContainer->SetActorRotation(FRotator::ZeroRotator);
 				for (int32 i = 0; i != LevelContainer->GetChildrenActors().Num(); ++i)
 				{
 					LevelContainer->GetChildrenActors()[i]->SetActorLocation(LevelContainer->GetChildrenActorLocations()[i]);
 				}
-				BallPawn->TeleportTo(FVector(0.0f, 0.0f, LevelContainer->GetActorLocation().Z + 100.0f), FRotator::ZeroRotator);
+				BallPawn->TeleportTo(FVector(BallPawn->GetStartingLocation()), FRotator::ZeroRotator);
 				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector::ZeroVector);
 				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector::ZeroVector);
 				BallPawn->GetController()->SetControlRotation(FRotator::ZeroRotator);
-
-				// If statement protects against issue with time deducting twice
-				if (!bFellBelowLevel)
-				{
-					TimeRemaining = TimeRemaining < 5.0f ? 0.0f : TimeRemaining - 5.0f;
-				}
-
-				bFellBelowLevel = true;
 			}
-			else
+			else if (Goal && HasBallPassedThroughGoal(BallPawn, Goal) && BallPawn->GetColor() == Goal->GetColor())
 			{
-				bFellBelowLevel = false;
-
-				for (TActorIterator<AGoal> ActorItr(GetWorld()); ActorItr; ++ActorItr)
-				{
-					AGoal* Goal = *ActorItr;
-					if (Goal && HasBallPassedThroughGoal(BallPawn, Goal) && BallPawn->GetColor() == Goal->GetColor())
-					{
-						SetCurrentState(EPlayState::EWon);
-					}
-				}
+				SetCurrentState(EPlayState::EWon);
 			}
 		}
 
@@ -95,37 +101,37 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 }
 
 // Checks if the ball has fallen below the level or thrown too far outside it
-bool ASuperBallyBallGameMode::IsBallOutsideLevelBounds(ABallPawn* BallPawn, ALevelContainer* LevelContainer)
+bool ASuperBallyBallGameMode::IsBallOutsideLevelBounds(ABallPawn* BallPawn, ACenterMarker* LevelCenter)
 {
 	FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
 	float BZ = BallPawn->GetActorLocation().Z;
 
-	FVector2D LXY = FVector2D::ZeroVector;
-	float LZ = 0.0f;
-	float LR = LevelContainer->GetSphereComponent()->GetScaledSphereRadius();
+	FVector2D CXY = FVector2D(LevelCenter->GetActorLocation().X, LevelCenter->GetActorLocation().Y);
+	float CZ = LevelCenter->GetActorLocation().Z;
 
-	return BZ < LZ - LR || FVector2D::Distance(BXY, LXY) > LR;
+	float R = BallPawn->GetLevelContainer()->GetSphereComponent()->GetScaledSphereRadius();
+
+	return BZ < CZ - R || FVector2D::Distance(BXY, CXY) > R;
 }
 
 // Checks if the ball is inside the Goal's static mesh
 bool ASuperBallyBallGameMode::HasBallPassedThroughGoal(ABallPawn* BallPawn, AGoal* Goal)
 {
-	FVector2D BXY = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Y);
-	float BZ = BallPawn->GetActorLocation().Z;
+	FVector2D BXZ = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Z);
+	float BY = BallPawn->GetActorLocation().Y;
 
-	FVector2D GXY = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Y);
-	float GZ = Goal->GetActorLocation().Z;
+	FVector2D GXZ = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Z);
+	float GY = Goal->GetActorLocation().Y;
 	
 	float E = 2.5f;
 
-	return FVector2D::Distance(BXY, GXY) <= 35.0f && BZ > GZ - E && BZ < GZ + E;
+	return FVector2D::Distance(BXZ, GXZ) <= 35.0f && BY > GY - E && BY < GY + E;
 }
 
 // Set a new playing state and handle the consequence
 void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 {
 	CurrentState = NewState;
-	ABallPawn* BallPawn = Cast<ABallPawn>(UGameplayStatics::GetPlayerPawn(this, 0));
 
 	switch (NewState)
 	{

@@ -18,6 +18,9 @@ AGuard::AGuard()
 	{
 		GuardVisual->SetStaticMesh(GuardVisualAsset.Object);
 	}
+
+	// Set the factor used to knock back the pawn when overlapping a guard
+	KnockBackFactor = 1.0f;
 }
 
 void AGuard::PostInitializeComponents()

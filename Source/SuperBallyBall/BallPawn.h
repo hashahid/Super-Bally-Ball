@@ -29,6 +29,9 @@ public:
 	/** Return the level container */
 	FORCEINLINE class ALevelContainer* GetLevelContainer() const { return LevelContainer; }
 
+	/** Return the starting location of the pawn */
+	FORCEINLINE FVector GetStartingLocation() const { return StartingLocation; }
+
 	/** Return the color of this pawn's mesh's material */
 	FORCEINLINE FLinearColor GetColor() const { return Color; }
 
@@ -66,13 +69,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	class ALevelContainer* LevelContainer;
 
-	/** The factor with which to multiply the AxisValue from input */
-	UPROPERTY(EditAnywhere)
-	float InputRotationFactor;
-
-	/** Magnitude of factor used to knock back the pawn when it collides with a guard */
-	UPROPERTY(EditAnywhere)
-	float KnockBackFactor;
+	/** The pawn's starting location. Used when resetting the level after falling outside level's bounds */
+	FVector StartingLocation;
 
 	/** The color of this pawn's mesh's material. Matching the goal's color while passing through it wins the game */
 	FLinearColor Color;

@@ -7,7 +7,7 @@
 APickup::APickup()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	// All pickups start active
 	bIsActive = true;
@@ -39,6 +39,18 @@ void APickup::PostInitializeComponents()
 void APickup::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+// Called every frame
+void APickup::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	AddActorLocalRotation(FRotator(0.0f, DeltaTime * 50.0f, 0.0f).Quaternion());
+
+	/*FRotator NewRotation = GetActorRotation();
+	NewRotation.Yaw += DeltaTime * 50.0f;
+	SetActorRotation(NewRotation);*/
 }
 
 // Changes active state

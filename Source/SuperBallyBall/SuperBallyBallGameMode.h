@@ -53,7 +53,7 @@ protected:
 
 private:
 	/** Returns true if the ball has fallen below the level or thrown too far outside it, false otherwise */
-	bool IsBallOutsideLevelBounds(class ABallPawn* BallPawn, class ALevelContainer* LevelContainer);
+	bool IsBallOutsideLevelBounds(class ABallPawn* BallPawn, class ACenterMarker* LevelCenter);
 
 	/** Returns true if the ball is inside the Goal's static mesh, false otherwise */
 	bool HasBallPassedThroughGoal(class ABallPawn* BallPawn, class AGoal* Goal);
@@ -62,13 +62,19 @@ private:
 	void SetCurrentState(EPlayState NewState);
 
 private:
+	/** The main ball pawn. The game mode keeps a reference so it can capture the pawn once and use it for operations */
+	class ABallPawn* BallPawn;
+
+	/** The level's center. The game mode keeps a reference so it can capture it once and use it for boundary tests */
+	class ACenterMarker* LevelCenter;
+
+	/** The level's goal. The game mode keeps a reference so it can capture it once and use it for win condition tests */
+	class AGoal* Goal;
+
 	/** The number of seconds the player has left to complete the level */
 	UPROPERTY(EditAnywhere)
 	float TimeRemaining;
 
 	/** Keeps track of the game's current state */
 	EPlayState CurrentState;
-
-	/** Protect against issue where 5 seconds are taken off TimeRemaining twice when falling below level once */
-	bool bFellBelowLevel; // TODO: See if this can be removed after finishing Level 1
 };

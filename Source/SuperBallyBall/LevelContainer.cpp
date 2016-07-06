@@ -13,6 +13,9 @@ ALevelContainer::ALevelContainer()
 	SphereComponent = CreateDefaultSubobject<USphereComponent>(TEXT("RootComponent"));
 	RootComponent = SphereComponent;
 	SphereComponent->InitSphereRadius(2500.0f);
+
+	// Set the factor used to affect the LevelContainer's rotation amount from input
+	RotationFactor = 1.5f;
 }
 
 // Called after construction and before BeginPlay

@@ -19,8 +19,15 @@ public:
 
 	virtual void PostInitializeComponents() override;
 
+	/** Return the knock back factor */
+	FORCEINLINE float GetKnockBackFactor() const { return KnockBackFactor; }
+
 private:
 	/** Static mesh to represent the pickup */
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* GuardVisual;
+
+	/** Magnitude of factor used to knock back the ball pawn when it collides with a guard */
+	UPROPERTY(EditAnywhere)
+	float KnockBackFactor;
 };

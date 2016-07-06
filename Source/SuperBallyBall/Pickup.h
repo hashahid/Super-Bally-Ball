@@ -14,11 +14,14 @@ public:
 	// Sets default values for this actor's properties
 	APickup();
 
+	// Called after construction and before BeginPlay
+	virtual void PostInitializeComponents() override;
+
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	// Called after construction and before BeginPlay
-	virtual void PostInitializeComponents() override;
+	// Called every frame
+	virtual void Tick(float DeltaSeconds) override;
 
 	/** Return the color of the pickup's mesh's material */
 	FORCEINLINE FLinearColor GetColor() const { return Color; }

@@ -18,6 +18,8 @@ ABallPawn::ABallPawn()
 	SphereComponent->InitSphereRadius(40.0f);
 	SphereComponent->SetCollisionProfileName(UCollisionProfile::Pawn_ProfileName);
 	SphereComponent->SetSimulatePhysics(true);
+	SphereComponent->SetLinearDamping(0.6f);
+	SphereComponent->SetAngularDamping(0.6f);
 
 	// Create and position a mesh component so the ball can be seen
 	SphereVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualRepresentation"));
@@ -45,12 +47,6 @@ ABallPawn::ABallPawn()
 	// Take control of the default player
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	// Set the factor used to affect the LevelContainer's rotation amount from input
-	InputRotationFactor = 2.0f;
-
-	// Set the factor used to knock back the pawn when overlapping a guard
-	KnockBackFactor = 4.0f;
-
 	// No pickups collected at the beginning (spawn time)
 	bPickupCollected = false;
 }
@@ -59,6 +55,9 @@ ABallPawn::ABallPawn()
 void ABallPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	// Capture the pawn's inital location so it can be reset after falling
+	StartingLocation = GetActorLocation();
 }
 
 // Called every frame
@@ -92,7 +91,7 @@ void ABallPawn::ChangeRoll(float AxisValue)
 		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		LevelContainer->AddActorLocalRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));		
+		LevelContainer->AddActorWorldRotation(FQuat(Direction, FMath::DegreesToRadians(LevelContainer->GetRotationFactor() * AxisValue)));		
 	}
 }
 
@@ -107,7 +106,7 @@ void ABallPawn::ChangePitch(float AxisValue)
 		const FRotator YawRotation(0.0f, Rotation.Yaw, 0.0f);
 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		LevelContainer->AddActorLocalRotation(FQuat(Direction, FMath::DegreesToRadians(InputRotationFactor * AxisValue)));
+		LevelContainer->AddActorWorldRotation(FQuat(Direction, FMath::DegreesToRadians(LevelContainer->GetRotationFactor() * AxisValue)));
 	}
 }
 
@@ -158,7 +157,6 @@ void ABallPawn::HandleOverlappingActors()
 			// Destroy and deactivate the pickup
 			CollectedPickup->Destroy();
 			CollectedPickup->SetActive(false);
-			// TODO: Find out if it's necessary to remove CollectedPickup from LevelContainer's ChildrenActors
 		}
 		else
 		{
@@ -168,7 +166,7 @@ void ABallPawn::HandleOverlappingActors()
 			if (CollidedGuard)
 			{
 				// Knock the BallPawn back
-				SphereVisual->SetPhysicsLinearVelocity(-KnockBackFactor * GetVelocity());
+				SphereVisual->SetPhysicsLinearVelocity(-1.0f * CollidedGuard->GetKnockBackFactor() * GetVelocity());
 			}
 		}
 	}

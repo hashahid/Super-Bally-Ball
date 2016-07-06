@@ -14,11 +14,11 @@ public:
 	// Sets default values for this actor's properties
 	ALevelContainer();
 
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	// Called after construction and before BeginPlay
 	virtual void PostInitializeComponents() override;
+
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
 
 	/** Return the sphere component */
 	FORCEINLINE class USphereComponent* GetSphereComponent() const { return SphereComponent; }
@@ -28,6 +28,9 @@ public:
 
 	/** Return the child actors' locations */
 	FORCEINLINE TArray<FVector> GetChildrenActorLocations() const { return ChildrenActorLocations; }
+
+	/** Return the rotation factor */
+	FORCEINLINE float GetRotationFactor() const { return RotationFactor; }
 
 private:
 	/** The root component, which is represented by a sphere */
@@ -39,4 +42,8 @@ private:
 
 	/** The inital locations of the LevelContainer's child actors. Used for resetting the level */
 	TArray<FVector> ChildrenActorLocations;
+
+	/** The factor with which to multiply the AxisValue from input (i.e. the rotation amount) */
+	UPROPERTY(EditAnywhere)
+	float RotationFactor;
 };
