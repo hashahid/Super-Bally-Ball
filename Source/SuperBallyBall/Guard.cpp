@@ -19,6 +19,11 @@ AGuard::AGuard()
 		GuardVisual->SetStaticMesh(GuardVisualAsset.Object);
 	}
 
+	// Create and configure the audio component so the guard can play a sound when it is overlapped
+	GuardAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("GuardAudio"));
+	GuardAudio->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	GuardAudio->bAutoActivate = false;
+
 	// Set the factor used to knock back the pawn when overlapping a guard
 	KnockBackFactor = 1.0f;
 }
@@ -38,4 +43,11 @@ void AGuard::PostInitializeComponents()
 void AGuard::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+// Play the audio component's referenced sound
+void AGuard::PlayAudio()
+{
+	GuardAudio->Activate(true);
+	GuardAudio->Play();
 }

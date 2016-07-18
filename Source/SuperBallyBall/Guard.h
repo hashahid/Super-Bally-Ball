@@ -22,10 +22,17 @@ public:
 	/** Return the knock back factor */
 	FORCEINLINE float GetKnockBackFactor() const { return KnockBackFactor; }
 
+	/** Play the sound referenced to by the guard's audio component */
+	void PlayAudio();
+
 private:
 	/** Static mesh to represent the pickup */
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* GuardVisual;
+
+	/** The sound to play when the guard is overlapped by the BallPawn */
+	UPROPERTY(EditAnywhere)
+	class UAudioComponent* GuardAudio;
 
 	/** Magnitude of factor used to knock back the ball pawn when it collides with a guard */
 	UPROPERTY(EditAnywhere)

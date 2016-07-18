@@ -23,6 +23,9 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 
+	/** Reset the pawn, level, and camera's orientations to their starting values */
+	void ResetPawnAndLevel();
+
 	/** Return the level container */
 	FORCEINLINE class UStaticMeshComponent* GetSphereVisual() const { return SphereVisual; }
 
@@ -35,15 +38,15 @@ public:
 	/** Return the color of this pawn's mesh's material */
 	FORCEINLINE FLinearColor GetColor() const { return Color; }
 
-	/** Update the LevelContainer's location without updating the locations of its child actors */
-	void UpdateLevelContainerLocation(FVector NewLocation);
-
 private:
 	/** Change the roll of the LevelContainer's rotation relative to the world */
 	void ChangeRoll(float AxisValue);
 
 	/** Change the pitch of the LevelContainer's rotation relative to the world */
 	void ChangePitch(float AxisValue);
+
+	/** Update the LevelContainer's location without updating the locations of its child actors */
+	void UpdateLevelContainerLocation(FVector NewLocation);
 
 	/** Handle overlapping of the SphereComponent with pickups and guards */
 	void HandleOverlappingActors();

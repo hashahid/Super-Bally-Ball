@@ -74,10 +74,30 @@ void ABallPawn::SetupPlayerInputComponent(class UInputComponent* InputComponent)
 {
 	Super::SetupPlayerInputComponent(InputComponent);
 
+	InputComponent->BindAction("ResetPawnAndLevel", IE_Pressed, this, &ABallPawn::ResetPawnAndLevel);
+
 	InputComponent->BindAxis("ChangeRoll", this, &ABallPawn::ChangeRoll);
 	InputComponent->BindAxis("ChangePitch", this, &ABallPawn::ChangePitch);
 	InputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	InputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+}
+
+void ABallPawn::ResetPawnAndLevel()
+{
+	if (LevelContainer)
+	{
+		// Reset player, level, and camera positions
+		UpdateLevelContainerLocation(FVector::ZeroVector);
+		LevelContainer->SetActorRotation(FRotator::ZeroRotator);
+		for (int32 i = 0; i != LevelContainer->GetChildrenActors().Num(); ++i)
+		{
+			LevelContainer->GetChildrenActors()[i]->SetActorLocation(LevelContainer->GetChildrenActorLocations()[i]);
+		}
+		TeleportTo(FVector(GetStartingLocation()), FRotator::ZeroRotator);
+		GetSphereVisual()->SetPhysicsLinearVelocity(FVector::ZeroVector);
+		GetSphereVisual()->SetPhysicsAngularVelocity(FVector::ZeroVector);
+		GetController()->SetControlRotation(FRotator::ZeroRotator);
+	}
 }
 
 // Change the roll of the LevelContainer's rotation relative to the world
@@ -138,7 +158,7 @@ void ABallPawn::HandleOverlappingActors()
 		// Cast the Actor to APickup
 		APickup* const CollectedPickup = Cast<APickup>(OverlappedActors[i]);
 		// If the cast is successful and the pickup is valid and active 
-		if (CollectedPickup && !CollectedPickup->IsPendingKill() && CollectedPickup->IsActive())
+		if (CollectedPickup && CollectedPickup->IsActive())
 		{
 			// Transfer the pickup's color to the ball pawn
 			UMaterialInstanceDynamic* Material = SphereVisual->CreateDynamicMaterialInstance(0, SphereVisual->GetMaterial(0));
@@ -154,8 +174,9 @@ void ABallPawn::HandleOverlappingActors()
 				Material->SetVectorParameterValue(FName("Color"), Color);
 			}
 
-			// Destroy and deactivate the pickup
-			CollectedPickup->Destroy();
+			// Hide and deactivate the pickup
+			CollectedPickup->PlayAudio();
+			CollectedPickup->SetActorHiddenInGame(true);
 			CollectedPickup->SetActive(false);
 		}
 		else
@@ -165,6 +186,7 @@ void ABallPawn::HandleOverlappingActors()
 			// If the cast is successful 
 			if (CollidedGuard)
 			{
+				CollidedGuard->PlayAudio();
 				// Knock the BallPawn back
 				SphereVisual->SetPhysicsLinearVelocity(-1.0f * CollidedGuard->GetKnockBackFactor() * GetVelocity());
 			}

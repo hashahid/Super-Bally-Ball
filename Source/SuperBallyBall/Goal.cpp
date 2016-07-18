@@ -18,6 +18,12 @@ AGoal::AGoal()
 	{
 		GoalVisual->SetStaticMesh(GoalVisualAsset.Object);
 	}
+
+	// Create and configure the audio component so the Goal can play a sound when it is crossed correctly
+	GoalAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("GoalAudio"));
+	GoalAudio->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	GoalAudio->bAutoActivate = false;
+	GoalAudio->bIsUISound = true;
 }
 
 // Called after construction and before BeginPlay
@@ -36,4 +42,11 @@ void AGoal::PostInitializeComponents()
 void AGoal::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+// Play the audio component's referenced sound
+void AGoal::PlayAudio()
+{
+	GoalAudio->Activate(true);
+	GoalAudio->Play();
 }

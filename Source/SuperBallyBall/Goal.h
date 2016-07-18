@@ -23,6 +23,9 @@ public:
 	/** Return the color of the goal's mesh's material */
 	FORCEINLINE FLinearColor GetColor() const { return Color; }
 
+	/** Play the sound referenced to by the goal's audio component */
+	void PlayAudio();
+
 private:
 	/** Static mesh to represent the goal */
 	UPROPERTY(EditAnywhere)
@@ -31,4 +34,8 @@ private:
 	/** The color of the goal's mesh's material. Matching the BallPawn's color when it passes through wins the game */
 	UPROPERTY(EditAnywhere)
 	FLinearColor Color;
+
+	/** The sound to play when the goal is crossed by the BallPawn and their colors match */
+	UPROPERTY(EditAnywhere)
+	class UAudioComponent* GoalAudio;
 };

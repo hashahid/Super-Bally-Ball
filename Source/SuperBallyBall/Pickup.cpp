@@ -21,6 +21,11 @@ APickup::APickup()
 	{
 		PickupVisual->SetStaticMesh(PickupVisualAsset.Object);
 	}
+
+	// Create and configure the audio component so the pickup can play a sound when it is overlapped
+	PickupAudio = CreateDefaultSubobject<UAudioComponent>(TEXT("PickupAudio"));
+	PickupAudio->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
+	PickupAudio->bAutoActivate = false;
 }
 
 // Called after construction and before BeginPlay
@@ -47,14 +52,17 @@ void APickup::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	AddActorLocalRotation(FRotator(0.0f, DeltaTime * 50.0f, 0.0f).Quaternion());
-
-	/*FRotator NewRotation = GetActorRotation();
-	NewRotation.Yaw += DeltaTime * 50.0f;
-	SetActorRotation(NewRotation);*/
 }
 
 // Changes active state
 void APickup::SetActive(bool NewPickupState)
 {
 	bIsActive = NewPickupState;
+}
+
+// Play the audio component's referenced sound
+void APickup::PlayAudio()
+{
+	PickupAudio->Activate(true);
+	PickupAudio->Play();
 }

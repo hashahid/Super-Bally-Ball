@@ -61,6 +61,9 @@ private:
 	/** Set a new playing state and handle the consequence */
 	void SetCurrentState(EPlayState NewState);
 
+	/** Pause or unpause the game depending on value of parameter boolean. Mainly used to pause after winning */
+	void ASuperBallyBallGameMode::SetGamePaused(bool bIsPaused);
+
 private:
 	/** The main ball pawn. The game mode keeps a reference so it can capture the pawn once and use it for operations */
 	class ABallPawn* BallPawn;

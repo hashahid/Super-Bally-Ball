@@ -72,24 +72,14 @@ void ASuperBallyBallGameMode::Tick(float DeltaTime)
 		{
 			ALevelContainer* LevelContainer = BallPawn->GetLevelContainer();
 
-			if (LevelContainer && IsBallOutsideLevelBounds(BallPawn, LevelCenter))
+			if (IsBallOutsideLevelBounds(BallPawn, LevelCenter))
 			{
-				// Reset player, level, and camera positions
-				// TODO: See if this can be neatly refactored into a "Reset" function
-				BallPawn->UpdateLevelContainerLocation(FVector::ZeroVector);
-				LevelContainer->SetActorRotation(FRotator::ZeroRotator);
-				for (int32 i = 0; i != LevelContainer->GetChildrenActors().Num(); ++i)
-				{
-					LevelContainer->GetChildrenActors()[i]->SetActorLocation(LevelContainer->GetChildrenActorLocations()[i]);
-				}
-				BallPawn->TeleportTo(FVector(BallPawn->GetStartingLocation()), FRotator::ZeroRotator);
-				BallPawn->GetSphereVisual()->SetPhysicsLinearVelocity(FVector::ZeroVector);
-				BallPawn->GetSphereVisual()->SetPhysicsAngularVelocity(FVector::ZeroVector);
-				BallPawn->GetController()->SetControlRotation(FRotator::ZeroRotator);
+				BallPawn->ResetPawnAndLevel();
 			}
 			else if (Goal && HasBallPassedThroughGoal(BallPawn, Goal) && BallPawn->GetColor() == Goal->GetColor())
 			{
 				SetCurrentState(EPlayState::EWon);
+				Goal->PlayAudio();
 			}
 		}
 
@@ -122,10 +112,12 @@ bool ASuperBallyBallGameMode::HasBallPassedThroughGoal(ABallPawn* BallPawn, AGoa
 
 	FVector2D GXZ = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Z);
 	float GY = Goal->GetActorLocation().Y;
-	
-	float E = 2.5f;
 
-	return FVector2D::Distance(BXZ, GXZ) <= 35.0f && BY > GY - E && BY < GY + E;
+	float E = 5.0f;
+
+	// Goal unscaled inner radius = 75.0f, scaled 2x = 150.0f
+	// 150.0f - 40.0f (BallPawn's radius) = 110.0f
+	return FVector2D::Distance(BXZ, GXZ) <= 110.0f && BY > GY - E && BY < GY + E;
 }
 
 // Set a new playing state and handle the consequence
@@ -148,8 +140,19 @@ void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 		{
 			BallPawn->DisableInput(nullptr);
 		}
+		SetGamePaused(true);
 	case EPlayState::EPlaying:
 	default:
 		break;
+	}
+}
+
+// Pause or unpause the game
+void ASuperBallyBallGameMode::SetGamePaused(bool bIsPaused)
+{
+	APlayerController* const MyPlayer = Cast<APlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()));
+	if (MyPlayer != NULL)
+	{
+		MyPlayer->SetPause(bIsPaused);
 	}
 }

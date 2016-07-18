@@ -32,6 +32,9 @@ public:
 	/** Allow other classes to change activeness of pickup */
 	void SetActive(bool NewPickupState);
 
+	/** Play the sound referenced to by the pickup's audio component */
+	void PlayAudio();
+
 private:
 	/** Static mesh to represent the pickup */
 	UPROPERTY(EditAnywhere)
@@ -40,6 +43,10 @@ private:
 	/** The color of the pickup's mesh's material. It transfers to the BallPawn on overlap */
 	UPROPERTY(EditAnywhere)
 	FLinearColor Color;
+
+	/** The sound to play when the pickup is overlapped by the BallPawn */
+	UPROPERTY(EditAnywhere)
+	class UAudioComponent* PickupAudio;
 
 	/** True when the pickup can be collected and false when it is deactivated */
 	bool bIsActive;
