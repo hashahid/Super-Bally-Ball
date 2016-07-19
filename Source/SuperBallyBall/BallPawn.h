@@ -26,7 +26,7 @@ public:
 	/** Reset the pawn, level, and camera's orientations to their starting values */
 	void ResetPawnAndLevel();
 
-	/** Return the level container */
+	/** Return the pawn's static mesh */
 	FORCEINLINE class UStaticMeshComponent* GetSphereVisual() const { return SphereVisual; }
 
 	/** Return the level container */

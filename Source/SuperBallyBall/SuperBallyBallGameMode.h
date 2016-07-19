@@ -34,9 +34,17 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	/** Return the total time */
+	UFUNCTION(BlueprintPure, Category = "Time")
+	FORCEINLINE float GetTotalTime() const { return TotalTime; }
+
 	/** Return the time remaining */
 	UFUNCTION(BlueprintPure, Category = "Time")
 	FORCEINLINE float GetTimeRemaining() const { return TimeRemaining; }
+
+	/** Sets the time in seconds needed to complete a level */
+	UFUNCTION(BlueprintCallable, Category = "Time")
+	void SetTimeForLevel(float Time);
 
 	/** Return the game's current state */
 	UFUNCTION(BlueprintPure, Category = "Game State")
@@ -74,7 +82,11 @@ private:
 	/** The level's goal. The game mode keeps a reference so it can capture it once and use it for win condition tests */
 	class AGoal* Goal;
 
-	/** The number of seconds the player has left to complete the level */
+	/** The number of seconds the player has to complete the level */
+	UPROPERTY(EditAnywhere)
+	float TotalTime;
+
+	/** The number of seconds the player has LEFT to complete the level */
 	UPROPERTY(EditAnywhere)
 	float TimeRemaining;
 

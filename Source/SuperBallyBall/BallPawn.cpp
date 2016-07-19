@@ -157,7 +157,7 @@ void ABallPawn::HandleOverlappingActors()
 	{
 		// Cast the Actor to APickup
 		APickup* const CollectedPickup = Cast<APickup>(OverlappedActors[i]);
-		// If the cast is successful and the pickup is valid and active 
+		// If the cast is successful and the pickup is active 
 		if (CollectedPickup && CollectedPickup->IsActive())
 		{
 			// Transfer the pickup's color to the ball pawn

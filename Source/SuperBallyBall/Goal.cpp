@@ -13,7 +13,7 @@ AGoal::AGoal()
 	GoalVisual = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("VisualRepresentation"));
 	RootComponent = GoalVisual;
 	GoalVisual->SetCollisionProfileName(UCollisionProfile::BlockAllDynamic_ProfileName);
-	static ConstructorHelpers::FObjectFinder<UStaticMesh> GoalVisualAsset(TEXT("/Game/Meshes/Ring_Mesh.Ring_Mesh"));
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> GoalVisualAsset(TEXT("/Game/Meshes/RingMesh.RingMesh"));
 	if (GoalVisualAsset.Succeeded())
 	{
 		GoalVisual->SetStaticMesh(GoalVisualAsset.Object);

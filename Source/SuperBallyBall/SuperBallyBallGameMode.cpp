@@ -15,8 +15,8 @@ ASuperBallyBallGameMode::ASuperBallyBallGameMode()
 	// Set the default pawn class to be the BallPawn
 	DefaultPawnClass = ABallPawn::StaticClass();
 
-	// Set the default number of seconds to complete the level 
-	TimeRemaining = 60.0f;
+	// The time it takes to complete a level should be set from the level blueprint
+	SetTimeForLevel(0.0f);
 }
 
 // Called when the game starts
@@ -108,16 +108,28 @@ bool ASuperBallyBallGameMode::IsBallOutsideLevelBounds(ABallPawn* BallPawn, ACen
 bool ASuperBallyBallGameMode::HasBallPassedThroughGoal(ABallPawn* BallPawn, AGoal* Goal)
 {
 	FVector2D BXZ = FVector2D(BallPawn->GetActorLocation().X, BallPawn->GetActorLocation().Z);
+	FVector2D BYZ = FVector2D(BallPawn->GetActorLocation().Y, BallPawn->GetActorLocation().Z);
+	float BX = BallPawn->GetActorLocation().X;
 	float BY = BallPawn->GetActorLocation().Y;
 
 	FVector2D GXZ = FVector2D(Goal->GetActorLocation().X, Goal->GetActorLocation().Z);
+	FVector2D GYZ = FVector2D(Goal->GetActorLocation().Y, Goal->GetActorLocation().Z);
+	float GX = Goal->GetActorLocation().X;
 	float GY = Goal->GetActorLocation().Y;
 
 	float E = 5.0f;
 
 	// Goal unscaled inner radius = 75.0f, scaled 2x = 150.0f
 	// 150.0f - 40.0f (BallPawn's radius) = 110.0f
-	return FVector2D::Distance(BXZ, GXZ) <= 110.0f && BY > GY - E && BY < GY + E;
+	return (FVector2D::Distance(BXZ, GXZ) <= 110.0f && BY > GY - E && BY < GY + E)
+		|| (FVector2D::Distance(BYZ, GYZ) <= 110.0f && BX > GX - E && BX < GX + E);
+}
+
+// Set the time in seconds needed to complete a level
+void ASuperBallyBallGameMode::SetTimeForLevel(float Time)
+{
+	TotalTime = Time;
+	TimeRemaining = TotalTime;
 }
 
 // Set a new playing state and handle the consequence
