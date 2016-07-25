@@ -38,6 +38,7 @@ ABallPawn::ABallPawn()
 	SpringArm->RelativeRotation = FRotator(-30.0f, 0.0f, 0.0f);
 	SpringArm->SetAbsolute(false, true, false);
 	SpringArm->TargetArmLength = 500.0f;
+	SpringArm->bUsePawnControlRotation = true;
 	SpringArm->bEnableCameraLag = false;
 
 	// Create a camera and attach to the spring arm

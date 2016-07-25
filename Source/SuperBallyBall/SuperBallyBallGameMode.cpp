@@ -116,13 +116,12 @@ bool ASuperBallyBallGameMode::HasBallPassedThroughGoal(ABallPawn* BallPawn, AGoa
 	FVector2D GYZ = FVector2D(Goal->GetActorLocation().Y, Goal->GetActorLocation().Z);
 	float GX = Goal->GetActorLocation().X;
 	float GY = Goal->GetActorLocation().Y;
+	float GR = 55.0f * Goal->GetActorScale().X;
 
 	float E = 5.0f;
 
-	// Goal unscaled inner radius = 75.0f, scaled 2x = 150.0f
-	// 150.0f - 40.0f (BallPawn's radius) = 110.0f
-	return (FVector2D::Distance(BXZ, GXZ) <= 110.0f && BY > GY - E && BY < GY + E)
-		|| (FVector2D::Distance(BYZ, GYZ) <= 110.0f && BX > GX - E && BX < GX + E);
+	return (FVector2D::Distance(BXZ, GXZ) <= GR && FMath::Abs(BY - GY) <= E)
+		|| (FVector2D::Distance(BYZ, GYZ) <= GR && FMath::Abs(BX - GX) <= E);
 }
 
 // Set the time in seconds needed to complete a level
@@ -145,6 +144,7 @@ void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 		{
 			BallPawn->DisableInput(nullptr);
 		}
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 		break;
 	case EPlayState::EWon:
 		// TODO Save TimeRemaining for high score HUD
@@ -153,6 +153,7 @@ void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 			BallPawn->DisableInput(nullptr);
 		}
 		SetGamePaused(true);
+		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 	case EPlayState::EPlaying:
 	default:
 		break;
