@@ -3,9 +3,10 @@
 #include "SuperBallyBall.h"
 #include "SuperBallyBallGameMode.h"
 #include "BallPawn.h"
-#include "LevelContainer.h"
 #include "CenterMarker.h"
 #include "Goal.h"
+#include "LevelContainer.h"
+#include "SBBSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 #include "Blueprint/UserWidget.h"
 
@@ -17,6 +18,13 @@ ASuperBallyBallGameMode::ASuperBallyBallGameMode()
 
 	// The time it takes to complete a level should be set from the level blueprint
 	SetTimeForLevel(0.0f);
+
+	// Load high scores previously saved
+	SaveGame = Cast<USBBSaveGame>(UGameplayStatics::CreateSaveGameObject(USBBSaveGame::StaticClass()));
+	if (UGameplayStatics::DoesSaveGameExist(SaveGame->SaveSlotName, SaveGame->UserIndex))
+	{
+		SaveGame = Cast<USBBSaveGame>(UGameplayStatics::LoadGameFromSlot(SaveGame->SaveSlotName, SaveGame->UserIndex));
+	}
 }
 
 // Called when the game starts
@@ -147,7 +155,6 @@ void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 		GetWorld()->GetFirstPlayerController()->bShowMouseCursor = true;
 		break;
 	case EPlayState::EWon:
-		// TODO Save TimeRemaining for high score HUD
 		if (BallPawn)
 		{
 			BallPawn->DisableInput(nullptr);
@@ -164,7 +171,7 @@ void ASuperBallyBallGameMode::SetCurrentState(EPlayState NewState)
 void ASuperBallyBallGameMode::SetGamePaused(bool bIsPaused)
 {
 	APlayerController* const MyPlayer = Cast<APlayerController>(GEngine->GetFirstLocalPlayerController(GetWorld()));
-	if (MyPlayer != NULL)
+	if (MyPlayer)
 	{
 		MyPlayer->SetPause(bIsPaused);
 	}

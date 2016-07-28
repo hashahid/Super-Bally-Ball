@@ -4,5 +4,5 @@
 
 IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, SuperBallyBall, "SuperBallyBall" );
 
-// TODO: Display start menu HUD at game start (with background music) and after win/lose (no music)
+// TODO: Ensure controllers work for navigating UI
 // TODO: Implement mobile support

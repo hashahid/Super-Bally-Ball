@@ -50,6 +50,10 @@ public:
 	UFUNCTION(BlueprintPure, Category = "Game State")
 	FORCEINLINE EPlayState GetCurrentState() const { return CurrentState; }
 
+	/** Return the SaveGame object */
+	UFUNCTION(BlueprintPure, Category = "High Score")
+	FORCEINLINE class USBBSaveGame* GetSaveGame() const { return SaveGame; }
+
 protected:
 	/** The widget class for the HUD screen */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, meta = (BlueprintProtected = "true"))
@@ -92,4 +96,7 @@ private:
 
 	/** Keeps track of the game's current state */
 	EPlayState CurrentState;
+
+	/** An instance of a SaveGame object to used to load and save high scores */
+	class USBBSaveGame* SaveGame;
 };
