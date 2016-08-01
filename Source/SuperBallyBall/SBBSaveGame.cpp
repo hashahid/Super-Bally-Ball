@@ -13,7 +13,7 @@ USBBSaveGame::USBBSaveGame()
 	Level2FastestTime = 60.0f;
 
 	Level3PlayerName = TEXT("");
-	Level3FastestTime = 120.0f;
+	Level3FastestTime = 90.0f;
 
 	SaveSlotName = TEXT("DefaultSaveSlot");
 	UserIndex = 0;

@@ -126,7 +126,7 @@ bool ASuperBallyBallGameMode::HasBallPassedThroughGoal(ABallPawn* BallPawn, AGoa
 	float GY = Goal->GetActorLocation().Y;
 	float GR = 55.0f * Goal->GetActorScale().X;
 
-	float E = 5.0f;
+	float E = 10.0f;
 
 	return (FVector2D::Distance(BXZ, GXZ) <= GR && FMath::Abs(BY - GY) <= E)
 		|| (FVector2D::Distance(BYZ, GYZ) <= GR && FMath::Abs(BX - GX) <= E);
