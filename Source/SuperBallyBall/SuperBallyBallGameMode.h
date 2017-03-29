@@ -9,7 +9,7 @@
  *
  */
 UENUM(BlueprintType)
-enum class EPlayState
+enum class EPlayState : uint8
 {
 	EPlaying,
 	ELost,
@@ -74,7 +74,7 @@ private:
 	void SetCurrentState(EPlayState NewState);
 
 	/** Pause or unpause the game depending on value of parameter boolean. Mainly used to pause after winning */
-	void ASuperBallyBallGameMode::SetGamePaused(bool bIsPaused);
+	void SetGamePaused(bool bIsPaused);
 
 private:
 	/** The main ball pawn. The game mode keeps a reference so it can capture the pawn once and use it for operations */
